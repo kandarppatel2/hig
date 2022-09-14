@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState, useEffect, useLayoutEffect } fro
 import PropTypes from 'prop-types';
 import ThemeContext, { ThemeContext as ThemeContext$1 } from '@hig/theme-context';
 import { css } from 'emotion';
-import { useTable, useResizeColumns, useFilters, useGlobalFilter, useGroupBy, useSortBy, useExpanded, usePagination, useRowSelect, useFlexLayout } from 'react-table';
+import { useTable, useResizeColumns, useFilters, useGlobalFilter, useGroupBy, useSortBy, useExpanded, usePagination, useRowSelect, useFlexLayout, useBlockLayout } from 'react-table';
 import { useSticky } from 'react-table-sticky';
 import Checkbox from '@hig/checkbox';
 import { HoverBehavior, PressedBehavior } from '@hig/behaviors';
@@ -136,7 +136,7 @@ function stylesheet(props, themeData, themeMeta) {
   const styles = {
     higTable: _objectSpread2({
       color: themeData["table.fontColor"],
-      display: "block",
+      display: isGrouped ? "block" : "inline-block",
       fontFamily: themeData["table.fontFamily"],
       fontSize: themeData["table.fontSize"],
       fontWeight: themeData["table.cell.fontWeight"],
@@ -927,7 +927,7 @@ DateFormatter.propTypes = {
   })
 };
 
-const _excluded$2 = ["cellColumnIndex", "cellRowIndex", "children", "multiSelectedColumn", "selected", "setActiveColumnIndex", "setActiveMultiSelectColumn", "setActiveRowIndex", "onTableCellClick", "activeMultiSelectRowArray", "setAllMultiSelectedRows", "setActiveMultiSelectRowArray", "rowSelection", "rowTypeToMap"];
+const _excluded$2 = ["cellColumnIndex", "cellRowIndex", "children", "multiSelectedColumn", "selected", "setActiveColumnIndex", "setActiveMultiSelectColumn", "setActiveRowIndex", "onTableCellClick", "activeMultiSelectRowArray", "setAllMultiSelectedRows", "setActiveMultiSelectRowArray", "rowSelection", "rowTypeToMap", "count"];
 function TableDataCellPresenter(props) {
   const {
     cellColumnIndex,
@@ -943,7 +943,8 @@ function TableDataCellPresenter(props) {
     setAllMultiSelectedRows,
     setActiveMultiSelectRowArray,
     rowSelection,
-    rowTypeToMap
+    rowTypeToMap,
+    count
   } = props,
         otherProps = _objectWithoutProperties(props, _excluded$2);
 
@@ -1024,7 +1025,8 @@ TableDataCellPresenter.propTypes = {
   setActiveMultiSelectRowArray: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   rowTypeToMap: PropTypes.arrayOf(PropTypes.any),
-  rowSelection: PropTypes.bool
+  rowSelection: PropTypes.bool,
+  count: PropTypes.number
 };
 
 function TableDataCell(props) {
@@ -1139,7 +1141,8 @@ const TableDataContents = _ref => {
     tableObject,
     globalColumns,
     globalResizeStyles,
-    rowSelection
+    rowSelection,
+    count
   } = _ref;
   return /*#__PURE__*/React.createElement("div", _extends({}, getTableBodyProps(), {
     className: css(styles.higTableBody)
@@ -1188,7 +1191,8 @@ const TableDataContents = _ref => {
           rowTypeToMap: paginateDynamic ? rows : page,
           customStylesheet: customStylesheet,
           globalResizeStyles: globalResizeStyles,
-          rowSelection: rowSelection
+          rowSelection: rowSelection,
+          count: count
         }), cell.isGrouped ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", row.getToggleRowExpandedProps(), /*#__PURE__*/React.createElement(GroupElements, {
           isExpanded: row.isExpanded
         }, meta.groupElements)), " ", renderCellData(meta.formatDate, cell), " (", row.subRows.length, ")") : cell.isAggregated ? cell.render("Aggregated") : cell.isPlaceholder ? null : renderCellData(meta.formatDate, cell));
@@ -1230,7 +1234,8 @@ TableDataContents.propTypes = {
   tableObject: PropTypes.any,
   globalColumns: PropTypes.any,
   globalResizeStyles: PropTypes.any,
-  rowSelection: PropTypes.bool
+  rowSelection: PropTypes.bool,
+  count: PropTypes.number
 };
 
 const RenderTable = _ref => {
@@ -1263,6 +1268,8 @@ const RenderTable = _ref => {
     tableSpreadProps,
     onTableCellClick,
     onSortClick,
+    onApplication,
+    enableBlockLayout,
     customStylesheet,
     tableGroupSelectAll: {
       checkboxToggle = [],
@@ -1318,7 +1325,10 @@ const RenderTable = _ref => {
     globalResizeStyles,
     setGlobalResizeStyles
   } = otherProps;
-  const layoutTypeWrap = useFlexLayout;
+
+  const checkEnableBlockLayout = () => enableBlockLayout ? useBlockLayout : useFlexLayout;
+
+  const layoutTypeWrap = isGrouped ? useFlexLayout : checkEnableBlockLayout();
   const {
     getTableProps,
     getTableBodyProps,
@@ -1414,6 +1424,13 @@ const RenderTable = _ref => {
                 }
 
                 setActiveMultiSelectRowArray(newArray);
+                onApplication({
+                  externalMenu: {
+                    rowIndex,
+                    newArray,
+                    count
+                  }
+                });
               },
               tabIndex: -1
             });
@@ -1454,7 +1471,7 @@ const RenderTable = _ref => {
   }
 
   useEffect(() => {
-    setTotalRows(rowTypeToMap.map(row => row.subRows && row.isExpanded ? row.subRows.length + 1 : 1).reduce((a, b) => a + b, 0)); // setTotalRows(rowTypeToMap.length);
+    setTotalRows(rowTypeToMap.map(row => row.subRows && row.isExpanded ? row.subRows.length + 1 : 1).reduce((a, b) => a + b, 0));
   });
   useEffect(() => {
     if (defaultSelectedRows && (defaultSelectedRows === null || defaultSelectedRows === void 0 ? void 0 : defaultSelectedRows.length) > 0) {
@@ -1600,7 +1617,8 @@ const RenderTable = _ref => {
         tableObject: tableObject,
         globalResizeStyles: globalResizeStyles,
         globalColumns: globalColumns,
-        rowSelection: rowSelection
+        rowSelection: rowSelection,
+        count: count
       }),
       activeMultiSelectRowArray: activeMultiSelectRowArray,
       setActiveMultiSelectRowArray: setActiveMultiSelectRowArray,
@@ -1640,7 +1658,8 @@ const RenderTable = _ref => {
       tableObject: tableObject,
       globalResizeStyles: globalResizeStyles,
       globalColumns: globalColumns,
-      rowSelection: rowSelection
+      rowSelection: rowSelection,
+      count: count
     })), !paginateDynamic && meta.paginationComponent && count === dataArray.length - 1 && /*#__PURE__*/React.createElement(Pagination, {
       pageDetails: pageDetails
     }, meta.paginationComponent), paginateDynamic && meta.paginationDynamic && count === dataArray.length - 1 && /*#__PURE__*/React.createElement(Pagination, {
@@ -1655,7 +1674,7 @@ RenderTable.propTypes = {
   passedCount: PropTypes.any
 };
 
-const _excluded$1 = ["alternateBg", "columnSelection", "frozenHeader", "frozenHeaderCount", "headerBackgroundColor", "headerRowSpreadProps", "paginateDynamic", "rowSpreadProps", "rowSelection", "setHeaderRef", "setTableRef", "setTotalRows", "tableObject", "tableSpreadProps", "onTableCellClick", "onSortClick", "stylesheet", "tableGroupSelectAll"];
+const _excluded$1 = ["alternateBg", "columnSelection", "frozenHeader", "frozenHeaderCount", "headerBackgroundColor", "headerRowSpreadProps", "paginateDynamic", "rowSpreadProps", "rowSelection", "setHeaderRef", "setTableRef", "setTotalRows", "tableObject", "tableSpreadProps", "onTableCellClick", "onSortClick", "onApplication", "enableBlockLayout", "stylesheet", "tableGroupSelectAll"];
 
 const TablePresenter = _ref => {
   let {
@@ -1675,6 +1694,8 @@ const TablePresenter = _ref => {
     tableSpreadProps,
     onTableCellClick,
     onSortClick,
+    onApplication,
+    enableBlockLayout,
     stylesheet: customStylesheet,
     tableGroupSelectAll
   } = _ref,
@@ -1713,6 +1734,7 @@ const TablePresenter = _ref => {
     tableSpreadProps,
     onTableCellClick,
     onSortClick,
+    onApplication,
     customStylesheet,
     tableGroupSelectAll,
     otherProps
@@ -1756,7 +1778,9 @@ TablePresenter.propTypes = {
   tableGroupSelectAll: PropTypes.shape({
     checkboxToggle: PropTypes.arrayOf(PropTypes.bool),
     setCheckboxToggle: PropTypes.func
-  })
+  }),
+  onApplication: PropTypes.func,
+  enableBlockLayout: PropTypes.bool
 };
 
 const _excluded = ["paginateDynamic", "tableObject"];
@@ -2049,6 +2073,8 @@ const Table = props => {
     paginateDynamic,
     onTableCellClick,
     onSortClick,
+    onApplication,
+    enableBlockLayout,
     stylesheet,
     tableGroupSelectAll = {}
   } = props;
@@ -2116,6 +2142,8 @@ const Table = props => {
         paginateDynamic: paginateDynamic,
         onTableCellClick: onTableCellClick,
         onSortClick: onSortClick,
+        onApplication: onApplication,
+        enableBlockLayout: enableBlockLayout,
         stylesheet: stylesheet,
         globalColumns: globalColumns,
         setGlobalColumns: setGlobalColumns,
@@ -2222,7 +2250,18 @@ Table.propTypes = {
      * Method that sets toggle value on/off for group
      */
     setCheckboxToggle: PropTypes.func
-  })
+  }),
+
+  /**
+   * Optional prop for external Menu
+   * if present will pass back group data
+   */
+  onApplication: PropTypes.func,
+
+  /**
+   * Optional prop to set table layout
+   */
+  enableBlockLayout: PropTypes.bool
 };
 Table.__docgenInfo = {
   "description": "",
@@ -2351,6 +2390,20 @@ Table.__docgenInfo = {
       },
       "required": false,
       "description": "Optional prop for grouped data, if present will\r\nadd functionality to select all by data type group"
+    },
+    "onApplication": {
+      "type": {
+        "name": "func"
+      },
+      "required": false,
+      "description": "Optional prop for external Menu\r\nif present will pass back group data"
+    },
+    "enableBlockLayout": {
+      "type": {
+        "name": "bool"
+      },
+      "required": false,
+      "description": "Optional prop to set table layout"
     }
   }
 };
