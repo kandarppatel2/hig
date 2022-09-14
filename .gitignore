@@ -65,7 +65,6 @@ nohup.out
 .idea/
 
 # compiled build stuff
-build/
 storybook-static/
 storybook-gemini-test/
 .temp/
