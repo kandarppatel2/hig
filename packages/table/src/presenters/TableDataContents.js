@@ -2,6 +2,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { css } from "emotion";
+import { CaretRightSUI, CaretDownSUI } from "@hig/icons";
 
 import DateFormatter from "../util/DateFormatter";
 import TableDataCell from "../TableDataCell";
@@ -136,7 +137,25 @@ const TableDataContents = ({
                     globalResizeStyles={globalResizeStyles}
                     rowSelection={rowSelection}
                     count={count}
+                    depth={row.depth}
                   >
+                    {
+                      cellColumnIndex == 0 && row.depth ?
+                        <span style={{ display: 'inline-block', width: (row.depth * 2) + "em" }}></span> 
+                        : null
+                    }
+                    {
+                      row.canExpand && cellColumnIndex == 0 ?
+                        (
+                          <span {...row.getToggleRowExpandedProps({ style: { width: '1em', display: 'inline-block' } })} 
+                            onClick={(event) => {
+                              row.toggleRowExpanded();
+                              event.stopPropagation();
+                            }}>
+                            {row.isExpanded ? <CaretDownSUI /> : <CaretRightSUI />}
+                          </span>
+                        ) : null
+                    }
                     {/* eslint-disable */}
                     {cell.isGrouped ? (
                       <>

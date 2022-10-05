@@ -128,7 +128,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
     allColumns,
     getToggleHideAllColumnsProps,
   } = useTable(
-    { columns, data, defaultColumn },
+    { columns, data, defaultColumn, getSubRows: row => row.subRows, autoResetExpanded: false},
     useResizeColumns,
     layoutTypeWrap,
     useSticky,
@@ -253,7 +253,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
   }
 
   useEffect(() => {
-    setTotalRows(rowTypeToMap.length);
+    setTotalRows(rowTypeToMap.map(row => row.subRows && row.isExpanded ? (row.subRows.length + 1) : 1).reduce((a,b) => a+b, 0));
   });
 
   useEffect(() => {
