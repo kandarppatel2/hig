@@ -141,15 +141,26 @@ const TableDataContents = ({
                   >
                     {
                       cellColumnIndex == 0 && row.depth ?
-                        <span style={{ display: 'inline-block', width: (row.depth * 2) + "em" }}></span> 
+                        <span style={{ display: 'inline-block', width: (row.depth * 2) + "em", flexShrink: 0 }}></span> 
                         : null
                     }
                     {
                       row.canExpand && cellColumnIndex == 0 ?
                         (
-                          <span {...row.getToggleRowExpandedProps({ style: { width: '1em', display: 'inline-block' } })} 
+                          <span {...row.getToggleRowExpandedProps({ style: { width: '1em', display: 'inline-block', flexShrink: 0 } })} 
                             onClick={(event) => {
                               row.toggleRowExpanded();
+                              if(row.subRows){
+                                const subRowsCount = row.subRows.length;
+                                const currentIndex = row.index;
+                                if(activeMultiSelectRowArray && activeMultiSelectRowArray.length) {
+                                  const updatedActiveMultiSelectRowArray = activeMultiSelectRowArray.map(i => i > currentIndex ? i + subRowsCount : i)
+                                  setActiveMultiSelectRowArray(updatedActiveMultiSelectRowArray);
+                                }
+                                if(activeRowIndex && activeRowIndex > currentIndex) {
+                                  setActiveRowIndex(activeRowIndex + subRowsCount);
+                                }
+                              }
                               event.stopPropagation();
                             }}>
                             {row.isExpanded ? <CaretDownSUI /> : <CaretRightSUI />}
