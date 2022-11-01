@@ -1,3 +1,29 @@
+# [@hig/theme-data-v3.4.2](https://github.com/Autodesk/hig/compare/@hig/theme-data@3.4.1...@hig/theme-data@3.4.2) (2022-10-05)
+
+
+### Bug Fixes
+
+* tag.on.pressed.backgroundColor value ([30b0624](https://github.com/Autodesk/hig/commit/30b0624))
+
+# [@hig/theme-data-v3.4.1](https://github.com/Autodesk/hig/compare/@hig/theme-data@3.4.0...@hig/theme-data@3.4.1) (2022-09-25)
+
+
+### Bug Fixes
+
+* dark gray thumbnail border alpha ([b305f82](https://github.com/Autodesk/hig/commit/b305f82))
+
+# [@hig/theme-data-v3.4.0](https://github.com/Autodesk/hig/compare/@hig/theme-data@3.3.0...@hig/theme-data@3.4.0) (2022-09-22)
+
+
+### Bug Fixes
+
+* tooltip.button.label.lineHeight showing unresolved role ([4323ed9](https://github.com/Autodesk/hig/commit/4323ed9))
+
+
+### Features
+
+* add additional thumbnail roles ([0fc09eb](https://github.com/Autodesk/hig/commit/0fc09eb))
+
 # [@hig/theme-data-v3.3.0](https://github.com/Autodesk/hig/compare/@hig/theme-data@3.2.0...@hig/theme-data@3.3.0) (2022-09-12)
 
 

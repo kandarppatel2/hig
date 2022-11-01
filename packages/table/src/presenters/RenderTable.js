@@ -32,6 +32,17 @@ import TableDataContents from "./TableDataContents";
 
 import stylesheet from "./stylesheet";
 
+const getColumnInfo = (column) => {
+  const { id, Header, width, isVisible, isResizing } = column;
+  return {
+    id,
+    Header,
+    width,
+    isVisible,
+    isResizing,
+  };
+};
+
 const RenderTable = ({ params, passedData, passedCount }) => {
   const {
     dataArray,
@@ -58,7 +69,9 @@ const RenderTable = ({ params, passedData, passedCount }) => {
     onTableCellClick,
     onSortClick,
     onApplication,
+    onColumnWidthChanged,
     enableBlockLayout,
+    controlRowPreSelect,
     customStylesheet,
     tableGroupSelectAll: { checkboxToggle = [], setCheckboxToggle = () => {} },
     otherProps,
@@ -256,6 +269,10 @@ const RenderTable = ({ params, passedData, passedCount }) => {
     setTotalRows(rowTypeToMap.map(row => row.subRows && row.isExpanded ? (row.subRows.length + 1) : 1).reduce((a,b) => a+b, 0));
   });
 
+  const defaultSelectedRowsDeps = controlRowPreSelect
+    ? defaultSelectedRows
+    : "";
+
   useEffect(() => {
     if (defaultSelectedRows && defaultSelectedRows?.length > 0) {
       const rowLimit = tableObject.data.length - 1;
@@ -270,7 +287,13 @@ const RenderTable = ({ params, passedData, passedCount }) => {
 
       setActiveMultiSelectRowArray(allArray);
     }
-  }, []);
+  }, [defaultSelectedRowsDeps]);
+
+  useEffect(() => {
+    if (controlRowPreSelect) {
+      controlRowPreSelect(activeMultiSelectRowArray);
+    }
+  }, [activeMultiSelectRowArray]);
 
   useEffect(() => {
     if (!globalColumns && count === 0) {
@@ -384,6 +407,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
                             {...column.getHeaderProps(
                               column.getSortByToggleProps()
                             )}
+                            columnInfo={getColumnInfo(column)}
                             columnSelection={columnSelection}
                             activeMultiSelectColumn={activeMultiSelectColumn}
                             columnHeaderArray={columnHeaderArray}
@@ -402,9 +426,11 @@ const RenderTable = ({ params, passedData, passedCount }) => {
                             customStylesheet={customStylesheet}
                             globalResizeStyles={globalResizeStyles}
                             onSortClick={onSortClick}
+                            onColumnWidthChanged={onColumnWidthChanged}
                             rowSelection={rowSelection}
                             setIsSortedDesc={setIsSortedDesc}
                             isSortedDesc={isSortedDesc}
+                            title={null}
                           >
                             <div
                               className={css(
@@ -414,7 +440,10 @@ const RenderTable = ({ params, passedData, passedCount }) => {
                               )}
                             >
                               {column.canGroupBy && meta.groupElements ? (
-                                <span {...column.getGroupByToggleProps()}>
+                                <span
+                                  {...column.getGroupByToggleProps()}
+                                  title={null}
+                                >
                                   <GroupHeaderElements
                                     groupHeaderElementStyles={
                                       styles.groupHeaderElement
