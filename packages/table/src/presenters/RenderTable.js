@@ -67,6 +67,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
     tableObject,
     tableSpreadProps,
     onTableCellClick,
+    onRowExpandCollapse,
     onSortClick,
     onApplication,
     onColumnWidthChanged,
@@ -275,16 +276,8 @@ const RenderTable = ({ params, passedData, passedCount }) => {
 
   useEffect(() => {
     if (defaultSelectedRows && defaultSelectedRows?.length > 0) {
-      const rowLimit = tableObject.data.length - 1;
-      const allArray = tableObject.data
-        ?.map((row, index) => {
-          if (defaultSelectedRows.includes(index) && index <= rowLimit) {
-            return index;
-          }
-          return null;
-        })
-        .filter((element) => element !== null);
-
+      const rowLimit = rowTypeToMap.map(row => row.subRows && row.isExpanded ? (row.subRows.length + 1) : 1).reduce((a,b) => a+b, 0);
+      const allArray = defaultSelectedRows.filter(index => !isNaN(index) && index >= 0 && index <= rowLimit);
       setActiveMultiSelectRowArray(allArray);
     }
   }, [defaultSelectedRowsDeps]);
@@ -509,6 +502,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
                       setActiveMultiSelectColumn={setActiveMultiSelectColumn}
                       setActiveRowIndex={setActiveRowIndex}
                       onTableCellClick={onTableCellClick}
+                      onRowExpandCollapse={onRowExpandCollapse}
                       setAllMultiSelectedRows={setAllMultiSelectedRows}
                       setActiveMultiSelectRowArray={
                         setActiveMultiSelectRowArray
@@ -558,6 +552,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
                   setActiveMultiSelectColumn={setActiveMultiSelectColumn}
                   setActiveRowIndex={setActiveRowIndex}
                   onTableCellClick={onTableCellClick}
+                  onRowExpandCollapse={onRowExpandCollapse}
                   setAllMultiSelectedRows={setAllMultiSelectedRows}
                   setActiveMultiSelectRowArray={setActiveMultiSelectRowArray}
                   paginateDynamic={paginateDynamic}

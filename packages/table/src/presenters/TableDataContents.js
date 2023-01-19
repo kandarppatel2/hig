@@ -38,6 +38,7 @@ const TableDataContents = ({
   setActiveMultiSelectColumn,
   setActiveRowIndex,
   onTableCellClick,
+  onRowExpandCollapse,
   setAllMultiSelectedRows,
   setActiveMultiSelectRowArray,
   paginateDynamic,
@@ -149,17 +150,21 @@ const TableDataContents = ({
                         (
                           <span {...row.getToggleRowExpandedProps({ style: { width: '1em', display: 'inline-block', flexShrink: 0 } })} 
                             onClick={(event) => {
+                              const isExpanded = row.isExpanded;
                               row.toggleRowExpanded();
                               if(row.subRows){
-                                const subRowsCount = row.subRows.length;
-                                const currentIndex = row.index;
+                                const subRowsCount = row.subRows.length * (isExpanded ? -1 : 1);
+                                const currentIndex = rowTypeToMap.findIndex(r =>r.id === row.id)
                                 if(activeMultiSelectRowArray && activeMultiSelectRowArray.length) {
-                                  const updatedActiveMultiSelectRowArray = activeMultiSelectRowArray.map(i => i > currentIndex ? i + subRowsCount : i)
+                                  const updatedActiveMultiSelectRowArray = activeMultiSelectRowArray.map(i => i > currentIndex ? (i + subRowsCount) : i)
                                   setActiveMultiSelectRowArray(updatedActiveMultiSelectRowArray);
                                 }
                                 if(activeRowIndex && activeRowIndex > currentIndex) {
                                   setActiveRowIndex(activeRowIndex + subRowsCount);
                                 }
+                              }
+                              if(onRowExpandCollapse) {
+                                onRowExpandCollapse(event, row);
                               }
                               event.stopPropagation();
                             }}>
@@ -216,6 +221,7 @@ TableDataContents.propTypes = {
   setActiveMultiSelectColumn: PropTypes.func,
   setActiveRowIndex: PropTypes.func,
   onTableCellClick: PropTypes.func,
+  onRowExpandCollapse: PropTypes.func,
   setAllMultiSelectedRows: PropTypes.func,
   setActiveMultiSelectRowArray: PropTypes.func,
   paginateDynamic: PropTypes.bool,

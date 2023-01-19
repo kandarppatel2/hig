@@ -20,6 +20,7 @@ const Table = (props) => {
     tableSpreadProps,
     paginateDynamic,
     onTableCellClick,
+    onRowExpandCollapse,
     onSortClick,
     onApplication,
     onColumnWidthChanged,
@@ -91,6 +92,7 @@ const Table = (props) => {
               tableSpreadProps={tableSpreadProps}
               paginateDynamic={paginateDynamic}
               onTableCellClick={onTableCellClick}
+              onRowExpandCollapse={onRowExpandCollapse}
               onSortClick={onSortClick}
               onApplication={onApplication}
               onColumnWidthChanged={onColumnWidthChanged}
@@ -153,6 +155,10 @@ Table.propTypes = {
    * Called when a table cell is clicked
    */
   onTableCellClick: PropTypes.func,
+  /**
+   * Called when row is expanded or collapsed
+   */
+  onRowExpandCollapse: PropTypes.func,
   /**
    * Controls whether to show all table rows or allow for user to
    * set up pagination
