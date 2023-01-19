@@ -52,6 +52,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
     groupNames,
     hiddenColumns,
     defaultSelectedRows,
+    defaultExpandedRows,
     alternateBg,
     columnSelection,
     frozenHeader,
@@ -141,6 +142,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
     setGlobalFilter,
     allColumns,
     getToggleHideAllColumnsProps,
+    toggleRowExpanded,
   } = useTable(
     { columns, data, defaultColumn, getSubRows: row => row.subRows, autoResetExpanded: false},
     useResizeColumns,
@@ -281,6 +283,14 @@ const RenderTable = ({ params, passedData, passedCount }) => {
       setActiveMultiSelectRowArray(allArray);
     }
   }, [defaultSelectedRowsDeps]);
+
+  useEffect(() => {
+    if(defaultExpandedRows) {
+      for(const rowid in defaultExpandedRows) {
+        toggleRowExpanded(rowid, defaultExpandedRows[rowid]);
+      }
+    }
+  }, [defaultExpandedRows])
 
   useEffect(() => {
     if (controlRowPreSelect) {
