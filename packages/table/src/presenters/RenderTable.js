@@ -407,9 +407,9 @@ const RenderTable = ({ params, passedData, passedCount }) => {
 
                         return (
                           <TableHeaderCell
-                            {...column.getHeaderProps(
-                              column.getSortByToggleProps()
-                            )}
+                          {...column.getHeaderProps(
+                            meta.disableDefaultSorting ? {} : column.getSortByToggleProps()
+                          )}
                             columnInfo={getColumnInfo(column)}
                             columnSelection={columnSelection}
                             activeMultiSelectColumn={activeMultiSelectColumn}
@@ -444,7 +444,7 @@ const RenderTable = ({ params, passedData, passedCount }) => {
                             >
                               {column.canGroupBy && meta.groupElements ? (
                                 <span
-                                  {...column.getGroupByToggleProps()}
+                                {...column.getGroupByToggleProps()}
                                   title={null}
                                 >
                                   <GroupHeaderElements

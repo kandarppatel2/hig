@@ -38,12 +38,14 @@ export default function TableHeaderCellPresenter(props) {
 
   const handleClick = useCallback(
     (event) => {
-      if (isSortPassed && onClick && !columnSelection) {
+      if (isSortPassed && !columnSelection) {
         setIsSortedDesc(!isSortedDesc);
         if (onSortClick) {
           onSortClick(event, props, headerIndex);
         }
-        onClick(event);
+        if(onClick) {
+          onClick(event);
+        }
       }
       // no column selection for multirow selection checkboxes
       if (headerIndex === -1 || !columnSelection) {
